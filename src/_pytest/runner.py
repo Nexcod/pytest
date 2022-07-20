@@ -513,6 +513,7 @@ class SetupState:
         """
         needed_collectors = nextitem and nextitem.listchain() or []
         exc = None
+        sys.stderr.write(f"start teardown_exact()" + os.linesep)
         while self.stack:
             if list(self.stack.keys()) == needed_collectors[: len(self.stack)]:
                 break
@@ -520,7 +521,9 @@ class SetupState:
             while finalizers:
                 fin = finalizers.pop()
                 try:
+                    sys.stderr.write(f"before fin() {fin}" + os.linesep)
                     fin()
+                    sys.stderr.write(f"after fin() {fin}" + os.linesep)
                 except TEST_OUTCOME as e:
                     # XXX Only first exception will be seen by user,
                     #     ideally all should be reported.
@@ -530,6 +533,7 @@ class SetupState:
             raise exc
         if nextitem is None:
             assert not self.stack
+        sys.stderr.write(f"end teardown_exact()" + os.linesep)
 
 
 def collect_one_node(collector: Collector) -> CollectReport:

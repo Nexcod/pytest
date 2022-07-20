@@ -1,3 +1,4 @@
+import os
 import sys
 import warnings
 from contextlib import contextmanager
@@ -38,6 +39,7 @@ def catch_warnings_for_item(
 
     Each warning captured triggers the ``pytest_warning_recorded`` hook.
     """
+    sys.stderr.write(f"start catch_warnings_for_item() 1111" + os.linesep)
     config_filters = config.getini("filterwarnings")
     cmdline_filters = config.known_args_namespace.pythonwarnings or []
     with warnings.catch_warnings(record=True) as log:
@@ -58,8 +60,11 @@ def catch_warnings_for_item(
                 for arg in mark.args:
                     warnings.filterwarnings(*parse_warning_filter(arg, escape=False))
 
+        sys.stderr.write(f"start catch_warnings_for_item() 2222" + os.linesep)
+
         yield
 
+        sys.stderr.write(f"start catch_warnings_for_item() 3333" + os.linesep)
         for warning_message in log:
             ihook.pytest_warning_recorded.call_historic(
                 kwargs=dict(
@@ -70,9 +75,12 @@ def catch_warnings_for_item(
                 )
             )
 
+        sys.stderr.write(f"start catch_warnings_for_item() 4444" + os.linesep)
+
 
 def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
     """Convert a warnings.WarningMessage to a string."""
+    sys.stderr.write(f"start warning_record_to_str()" + os.linesep)
     warn_msg = warning_message.message
     msg = warnings.formatwarning(
         str(warn_msg),
@@ -103,6 +111,7 @@ def warning_record_to_str(warning_message: warnings.WarningMessage) -> str:
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_protocol(item: Item) -> Generator[None, None, None]:
+    sys.stderr.write(f"start pytest_runtest_protocol()" + os.linesep)
     with catch_warnings_for_item(
         config=item.config, ihook=item.ihook, when="runtest", item=item
     ):
@@ -111,6 +120,7 @@ def pytest_runtest_protocol(item: Item) -> Generator[None, None, None]:
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_collection(session: Session) -> Generator[None, None, None]:
+    sys.stderr.write(f"start pytest_collection()" + os.linesep)
     config = session.config
     with catch_warnings_for_item(
         config=config, ihook=config.hook, when="collect", item=None
@@ -122,6 +132,7 @@ def pytest_collection(session: Session) -> Generator[None, None, None]:
 def pytest_terminal_summary(
     terminalreporter: TerminalReporter,
 ) -> Generator[None, None, None]:
+    sys.stderr.write(f"start pytest_terminal_summary()" + os.linesep)
     config = terminalreporter.config
     with catch_warnings_for_item(
         config=config, ihook=config.hook, when="config", item=None
@@ -131,6 +142,7 @@ def pytest_terminal_summary(
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_sessionfinish(session: Session) -> Generator[None, None, None]:
+    sys.stderr.write(f"start pytest_sessionfinish()" + os.linesep)
     config = session.config
     with catch_warnings_for_item(
         config=config, ihook=config.hook, when="config", item=None
@@ -142,6 +154,7 @@ def pytest_sessionfinish(session: Session) -> Generator[None, None, None]:
 def pytest_load_initial_conftests(
     early_config: "Config",
 ) -> Generator[None, None, None]:
+    sys.stderr.write(f"start pytest_load_initial_conftests()" + os.linesep)
     with catch_warnings_for_item(
         config=early_config, ihook=early_config.hook, when="config", item=None
     ):

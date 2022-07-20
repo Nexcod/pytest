@@ -1016,6 +1016,7 @@ class FixtureDef(Generic[FixtureValue]):
         self._finalizers.append(finalizer)
 
     def finish(self, request: SubRequest) -> None:
+        sys.stderr.write(f"start finish() called for {self}" + os.linesep)
         exc = None
         try:
             while self._finalizers:
@@ -1037,6 +1038,7 @@ class FixtureDef(Generic[FixtureValue]):
             # which will keep instances alive.
             self.cached_result = None
             self._finalizers = []
+            sys.stderr.write(f"end finish() called for {self}" + os.linesep)
 
     def execute(self, request: SubRequest) -> FixtureValue:
         # Get required arguments and register our own finish()
